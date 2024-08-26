@@ -1,0 +1,78 @@
+-- Criação do Banco de Dados
+CREATE DATABASE SistemaEmprestimoBicicletas;
+USE SistemaEmprestimoBicicletas;
+
+-- Tabela de Usuários
+CREATE TABLE Usuarios (
+    usuario_id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    telefone VARCHAR(15),
+    data_nascimento DATE,
+    data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de Bicicletas
+CREATE TABLE Bicicletas (
+    bicicleta_id INT AUTO_INCREMENT PRIMARY KEY,
+    modelo VARCHAR(50),
+    status ENUM('Disponível', 'Em Manutenção', 'Indisponível') DEFAULT 'Disponível',
+    data_aquisicao DATE
+);
+
+-- Tabela de Estações (Pontos de Empréstimo)
+CREATE TABLE Estacoes (
+    estacao_id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    localizacao VARCHAR(200)
+);
+
+-- Tabela de Empréstimos
+CREATE TABLE Emprestimos (
+    emprestimo_id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    bicicleta_id INT,
+    estacao_retirada_id INT,
+    estacao_devolucao_id INT,
+    data_emprestimo TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    data_devolucao TIMESTAMP NULL,
+    status ENUM('Em Andamento', 'Concluído') DEFAULT 'Em Andamento',
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(usuario_id),
+    FOREIGN KEY (bicicleta_id) REFERENCES Bicicletas(bicicleta_id),
+    FOREIGN KEY (estacao_retirada_id) REFERENCES Estacoes(estacao_id),
+    FOREIGN KEY (estacao_devolucao_id) REFERENCES Estacoes(estacao_id)
+);
+
+-- Tabela de Histórico de Manutenção
+CREATE TABLE HistoricoManutencao (
+    manutencao_id INT AUTO_INCREMENT PRIMARY KEY,
+    bicicleta_id INT,
+    data_manutencao DATE,
+    descricao TEXT,
+    FOREIGN KEY (bicicleta_id) REFERENCES Bicicletas(bicicleta_id)
+);
+
+-- Inserindo algumas estações iniciais
+INSERT INTO Estacoes (nome, localizacao) VALUES
+('Estação Central', 'Praça Principal, Centro'),
+('Estação Norte', 'Avenida da Liberdade, Norte'),
+('Estação Sul', 'Rua das Flores, Sul');
+
+-- Inserindo algumas bicicletas
+INSERT INTO Bicicletas (modelo, data_aquisicao) VALUES
+('Modelo A', '2023-01-10'),
+('Modelo B', '2023-02-15'),
+('Modelo C', '2023-03-20');
+
+-- Exemplo de Inserção de Usuários
+INSERT INTO Usuarios (nome, email, telefone, data_nascimento) VALUES
+('João da Silva', 'joao.silva@email.com', '11999999999', '1990-05-10'),
+('Maria Oliveira', 'maria.oliveira@email.com', '11988888888', '1985-12-25');
+
+-- Exemplo de Empréstimo
+INSERT INTO Emprestimos (usuario_id, bicicleta_id, estacao_retirada_id, estacao_devolucao_id) VALUES
+(1, 1, 1, NULL); -- Devolução será registrada posteriormente
+
+-- Exemplo de Histórico de Manutenção
+INSERT INTO HistoricoManutencao (bicicleta_id, data_manutencao, descricao) VALUES
+(1, '2024-08-01', 'Substituição de pneu');
